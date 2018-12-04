@@ -16,6 +16,7 @@
             <li><h3>Book: <%= book.title %></h3></li>
             <li><p>Author: <%= book.author %></p></li>
             <li><a href="/books/<%= book.id %>">View Details</a></li>
+            <li><a href="/delete/<%= book.id %>">Delete Book</a></li>
           </div>
           <% }) %>
         </ul>

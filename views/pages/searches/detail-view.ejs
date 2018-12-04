@@ -16,9 +16,11 @@
           <li>ISBN: <%= book.isbn %></li>
           <li>Bookshelf: <%= book.bookshelf %></li>
         </ul>
+        <%- include('../../partials/detail-form', {formAction: 'update', book: book}) %>
       </section>
     </main>
-
+  
     <footer><%- include('../../partials/footer') %></footer>
   </body>
 </html>
+

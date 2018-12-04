@@ -3,6 +3,7 @@
 const express = require('express');
 const superagent = require('superagent');
 const pg = require('pg');
+const methodOverride = require('method-override');
 //const cors = require('cors');
 const app = express();
 require('dotenv').config();
@@ -19,13 +20,25 @@ app.set('view engine', 'ejs');
 //showing app where to find resources
 app.use(express.static('./public'));
 app.use(express.urlencoded( {extended: true} ));
+app.use(methodOverride((request, response) => {
+  if(request.body && typeof request.body === 'object' && '_method' in request.body) {
+    let method = request.body._method;
+    delete request.body._method;
+    return method;
+  }
+}))
+
 // ++++++++++++ ROUTES ++++++++++++++++
 
 //route for home view
 app.get('/', getBooks);
 
 app.get('/books/:book_id', getOneBook);
+app.get('/delete/:book_id', deleteOneBook);
 app.get('/search', getSearch);
+app.get('/add', showForm);
+app.post('/add', addBook);
+app.put('/update/:book_id', updateBook);
 
 //handler for POST request to /searches
 app.post('/searches', createSearch);
@@ -62,6 +75,40 @@ function getOneBook(request, response) {
     .catch(err => handleError(err, response));
 }
 
+function deleteOneBook(request, response) {
+  let SQL = `DELETE FROM books WHERE id=$1;`;
+  let values = [request.params.book_id];
+  console.log(request.body);
+
+  return client.query(SQL, values)
+    .then(response.redirect('/'))
+    .catch(error => handleError(error, response));
+}
+
+function showForm(request, response) {
+  response.render('pages/partials/detail-form.ejs');
+}
+
+function addBook(request, response) {
+  let {title, author, description, isbn, bookshelf} = request.body;
+  let SQL = `INSERT INTO books(title, author, description, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5);`;
+  let values = [title, author, description, isbn, bookshelf];
+
+  return client.query(SQL, values)
+    .then(response.redirect('/'))
+    .catch(err => handleError(err, response));
+}
+
+function updateBook(request, response) {
+  let {title, author, description, isbn, bookshelf} = request.body;
+  let SQL = `UPDATE books SET title=$1, author=$2, description=$3, isbn=$4, bookshelf=$5 WHERE id=$6`;
+  let values = [title, author, description, isbn, bookshelf, request.params.book_id];
+
+  return client.query(SQL, values)
+    .then(response.redirect(`/books/${request.params.book_id}`))
+    .catch(err => handleError(err, response));
+}
+
 function getSearch(request, response) {
   response.render('pages/search.ejs');
 }
@@ -86,3 +133,4 @@ function createSearch(request, response) {
     .then(results => response.render('pages/searches/search-results', {searchResults: results}))
     .catch(error => handleError(error, response));
 }
+

@@ -9,10 +9,12 @@
       <section class="flex-container">
         <ul class="book-list">
           <% searchResults.forEach(book => { %>
+
           <div class="books">
             <li><img src=<%= book.image_url %>></li>
             <li><h3><%= book.title %></h3></li>
             <li><p><%= book.author %></p></li>
+            <%- include('../../partials/detail-form', {formAction: 'save', book: book}) %>
           </div>
           <% }) %>
         </ul>
