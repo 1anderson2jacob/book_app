@@ -78,7 +78,6 @@ function getOneBook(request, response) {
 function deleteOneBook(request, response) {
   let SQL = `DELETE FROM books WHERE id=$1;`;
   let values = [request.params.book_id];
-  console.log(request.body);
 
   return client.query(SQL, values)
     .then(response.redirect('/'))
@@ -90,9 +89,11 @@ function showForm(request, response) {
 }
 
 function addBook(request, response) {
+  console.log(request.body);
   let {title, author, description, isbn, bookshelf} = request.body;
   let SQL = `INSERT INTO books(title, author, description, isbn, bookshelf) VALUES ($1, $2, $3, $4, $5);`;
   let values = [title, author, description, isbn, bookshelf];
+  console.log(values);
 
   return client.query(SQL, values)
     .then(response.redirect('/'))
